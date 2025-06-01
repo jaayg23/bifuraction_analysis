@@ -1,0 +1,220 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.optimize import fsolve
+import warnings
+warnings.filterwarnings('ignore')
+
+class MesoscopicNeuralNetwork:
+    def __init__(self, J_II=-10, I_E= 10, I_I = -10):
+        # Parámetros del modelo (basados en el paper)
+        self.N_E = 8  # Poblaciones excitatorias
+        self.N_I = 2  # Poblaciones inhibitorias
+        self.N = self.N_E + self.N_I
+
+        # Constantes de tiempo
+        self.tau_E = 1
+        self.tau_I = 1
+
+        # Pesos sinápticos
+        self.J_EE = 10
+        self.J_EI = -70  # Inhibitorio
+        self.J_IE = 70
+        self.J_II = J_II # Inhibitorio, parametro de bifurcacion
+
+        # Parámetros de activación
+        self.nu_max_E = 1
+        self.nu_max_I = 1
+        self.Lambda_E = 2
+        self.Lambda_I = 2
+        self.V_t_E = 2
+        self.V_t_I = 2
+
+        # Entrada externa
+        self.I_E = I_E  #Parametro de bifurcation
+        self.I_I = I_I #Parametro de bifurcation
+
+    def activation_function(self, V, nu_max, Lambda, V_t):
+        """Función de activación algebraica suave"""
+        x = V - V_t
+        return (nu_max/2) * (1 + (Lambda/2) * x / np.sqrt(1 + (Lambda**2/4) * x**2))
+
+    def nullcline_E(self, mu_E, mu_I):
+        """Nullcline para población excitatoria"""
+        A_E = self.activation_function(mu_E, self.nu_max_E, self.Lambda_E, self.V_t_E)
+        A_I = self.activation_function(mu_I, self.nu_max_I, self.Lambda_I, self.V_t_I)
+
+        return (-mu_E/self.tau_E +
+                (self.N_E - 1)/(self.N - 1) * self.J_EE * A_E +
+                self.N_I/(self.N - 1) * self.J_EI * A_I +
+                self.I_E)
+
+    def nullcline_I(self, mu_E, mu_I):
+        """Nullcline para población inhibitoria"""
+        A_E = self.activation_function(mu_E, self.nu_max_E, self.Lambda_E, self.V_t_E)
+        A_I = self.activation_function(mu_I, self.nu_max_I, self.Lambda_I, self.V_t_I)
+
+        return (-mu_I/self.tau_I +
+                self.N_E/(self.N - 1) * self.J_IE * A_E +
+                (self.N_I - 1)/(self.N - 1) * self.J_II * A_I +
+                self.I_I)
+
+    def find_fixed_points(self):
+        """Encuentra puntos fijos del sistema"""
+        def system(vars):
+            mu_E, mu_I = vars
+            return [self.nullcline_E(mu_E, mu_I), self.nullcline_I(mu_E, mu_I)]
+
+        # Múltiples condiciones iniciales para encontrar diferentes puntos fijos
+        initial_guesses = [
+            [0, 0], [10, 10], [-10, -10], [20, -5], [-5, 20]
+        ]
+
+        fixed_points = []
+        for guess in initial_guesses:
+            try:
+                sol = fsolve(system, guess, xtol=1e-12)
+                # Verificar que es realmente una solución
+                if np.allclose(system(sol), [0, 0], atol=1e-6):
+                    # Evitar duplicados
+                    is_duplicate = False
+                    for fp in fixed_points:
+                        if np.allclose(sol, fp, atol=1e-3):
+                            is_duplicate = True
+                            break
+                    if not is_duplicate:
+                        fixed_points.append(sol)
+            except:
+                continue
+
+        return np.array(fixed_points)
+
+    def plot_nullclines_and_fixed_points(self, I_E_value, ax=None):
+        """Grafica nullclines y puntos fijos para un valor dado de I_E"""
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(8, 6))
+
+        # Actualizar parámetro
+        self.I_E = I_E_value
+
+        # Rango para las gráficas
+        mu_range = np.linspace(-15, 60, 1000)
+
+        # Calcular nullclines
+        nullcline_E_values = []
+        nullcline_I_values = []
+
+        for mu_E in mu_range:
+            # Para nullcline E: encontrar mu_I tal que F_E(mu_E, mu_I) = 0
+            def eq_E(mu_I):
+                return self.nullcline_E(mu_E, mu_I[0])
+
+            try:
+                mu_I_sol = fsolve(eq_E, [0], xtol=1e-10)[0]
+                # Verificar que la solución es válida
+                if abs(self.nullcline_E(mu_E, mu_I_sol)) < 1e-6:
+                    nullcline_E_values.append([mu_E, mu_I_sol])
+            except:
+                pass
+
+        for mu_I in mu_range:
+            # Para nullcline I: encontrar mu_E tal que F_I(mu_E, mu_I) = 0
+            def eq_I(mu_E):
+                return self.nullcline_I(mu_E[0], mu_I)
+
+            try:
+                mu_E_sol = fsolve(eq_I, [0], xtol=1e-10)[0]
+                if abs(self.nullcline_I(mu_E_sol, mu_I)) < 1e-6:
+                    nullcline_I_values.append([mu_E_sol, mu_I])
+            except:
+                pass
+
+        # Convertir a arrays
+        if nullcline_E_values:
+            nullcline_E = np.array(nullcline_E_values)
+            ax.plot(nullcline_E[:, 0], nullcline_E[:, 1], 'm-', linewidth=2,
+                   label=r'$\mathcal{F}_E(\mu_E,\mu_I)=0$')
+
+        if nullcline_I_values:
+            nullcline_I = np.array(nullcline_I_values)
+            ax.plot(nullcline_I[:, 0], nullcline_I[:, 1], 'g-', linewidth=2,
+                   label=r'$\mathcal{F}_I(\mu_E,\mu_I)=0$')
+
+        # Encontrar y graficar puntos fijos
+        fixed_points = self.find_fixed_points()
+        if len(fixed_points) > 0:
+            ax.plot(fixed_points[:, 0], fixed_points[:, 1], 'ko',
+                   markersize=8, markerfacecolor='black', markeredgecolor='white',
+                   markeredgewidth=2, label='Puntos fijos')
+
+        # Configuración de la gráfica
+        ax.set_xlabel(r'$\mu_E$', fontsize=14)
+        ax.set_ylabel(r'$\mu_I$', fontsize=14)
+        ax.set_title(f'$I_E = {I_E_value}$', fontsize=16)
+        ax.grid(True, alpha=0.3)
+        ax.legend(fontsize=12)
+        ax.set_xlim(-8, 10)
+        ax.set_ylim(-15, 60)
+
+        return fixed_points
+
+def create_bifurcation_diagram():
+    """Crea el diagrama de bifurcación completo"""
+    network = MesoscopicNeuralNetwork()
+    network_1 = MesoscopicNeuralNetwork(I_E=13)
+
+    # Crear subplots
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
+
+    # Primer caso: I_E = 10
+    print("Analizando I_E = 10...")
+    fp1 = network.plot_nullclines_and_fixed_points(10, ax1)
+    print(f"Puntos fijos encontrados: {len(fp1)}")
+    if len(fp1) > 0:
+        for i, fp in enumerate(fp1):
+            print(f"  Punto {i+1}: μ_E = {fp[0]:.3f}, μ_I = {fp[1]:.3f}")
+
+    # Segundo caso: I_E = 13
+    print("\nAnalizando I_E = 13...")
+    fp2 = network_1.plot_nullclines_and_fixed_points(13, ax2)
+    print(f"Puntos fijos encontrados: {len(fp2)}")
+    if len(fp2) > 0:
+        for i, fp in enumerate(fp2):
+            print(f"  Punto {i+1}: μ_E = {fp[0]:.3f}, μ_I = {fp[1]:.3f}")
+
+    plt.tight_layout()
+    plt.suptitle('Análisis de Bifurcaciones en Redes Neuronales Mesoscópicas',
+                 fontsize=18, y=1.02)
+    plt.show()
+
+    return fig
+
+def analyze_bifurcation_parameter_sweep():
+    """Analiza cómo cambia el número de puntos fijos con I_E"""
+    network = MesoscopicNeuralNetwork()
+
+    I_E_values = np.linspace(5, 20, 50)
+    num_fixed_points = []
+
+    print("Realizando barrido paramétrico...")
+    for I_E in I_E_values:
+        network.I_E = I_E
+        fixed_points = network.find_fixed_points()
+        num_fixed_points.append(len(fixed_points))
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(I_E_values, num_fixed_points, 'bo-', linewidth=2, markersize=6)
+    plt.xlabel(r'$I_E$', fontsize=14)
+    plt.ylabel('Número de Puntos Fijos', fontsize=14)
+    plt.title('Diagrama de Bifurcación: Número de Puntos Fijos vs $I_E$', fontsize=16)
+    plt.grid(True, alpha=0.3)
+    plt.show()
+
+    return I_E_values, num_fixed_points
+
+# Ejecutar análisis
+if __name__ == "__main__":
+    # Crear diagrama principal
+    fig = create_bifurcation_diagram()
+
+    # Análisis paramétrico
+    I_E_vals, n_fps = analyze_bifurcation_parameter_sweep()
