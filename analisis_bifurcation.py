@@ -66,7 +66,7 @@ class MesoscopicNeuralNetwork:
 
         # Múltiples condiciones iniciales para encontrar diferentes puntos fijos
         initial_guesses = [
-            [0, 0], [10, 10], [-10, -10], [20, -5], [-5, 20]
+            [0, 0], [5.7, 40], [-10, -10], [20, -5], [-5.8, 40]
         ]
 
         fixed_points = []
@@ -97,7 +97,7 @@ class MesoscopicNeuralNetwork:
         self.I_E = I_E_value
 
         # Rango para las gráficas
-        mu_range = np.linspace(-15, 60, 1000)
+        mu_range = np.linspace(-15, 60, 100000)
 
         # Calcular nullclines
         nullcline_E_values = []
@@ -109,7 +109,7 @@ class MesoscopicNeuralNetwork:
                 return self.nullcline_E(mu_E, mu_I[0])
 
             try:
-                mu_I_sol = fsolve(eq_E, [0], xtol=1e-10)[0]
+                mu_I_sol = fsolve(eq_E, [0], xtol=1e-8, maxfev=1000,)[0]
                 # Verificar que la solución es válida
                 if abs(self.nullcline_E(mu_E, mu_I_sol)) < 1e-6:
                     nullcline_E_values.append([mu_E, mu_I_sol])
@@ -132,12 +132,12 @@ class MesoscopicNeuralNetwork:
         if nullcline_E_values:
             nullcline_E = np.array(nullcline_E_values)
             ax.plot(nullcline_E[:, 0], nullcline_E[:, 1], 'm-', linewidth=2,
-                   label=r'$\mathcal{F}_E(\mu_E,\mu_I)=0$')
+                   label=r'$\mathcal{F}(\mu_E,\mu_I)=0$')
 
         if nullcline_I_values:
             nullcline_I = np.array(nullcline_I_values)
             ax.plot(nullcline_I[:, 0], nullcline_I[:, 1], 'g-', linewidth=2,
-                   label=r'$\mathcal{F}_I(\mu_E,\mu_I)=0$')
+                   label=r'$\mathcal{G}(\mu_E,\mu_I)=0$')
 
         # Encontrar y graficar puntos fijos
         fixed_points = self.find_fixed_points()
@@ -188,33 +188,7 @@ def create_bifurcation_diagram():
 
     return fig
 
-def analyze_bifurcation_parameter_sweep():
-    """Analiza cómo cambia el número de puntos fijos con I_E"""
-    network = MesoscopicNeuralNetwork()
-
-    I_E_values = np.linspace(5, 20, 50)
-    num_fixed_points = []
-
-    print("Realizando barrido paramétrico...")
-    for I_E in I_E_values:
-        network.I_E = I_E
-        fixed_points = network.find_fixed_points()
-        num_fixed_points.append(len(fixed_points))
-
-    plt.figure(figsize=(10, 6))
-    plt.plot(I_E_values, num_fixed_points, 'bo-', linewidth=2, markersize=6)
-    plt.xlabel(r'$I_E$', fontsize=14)
-    plt.ylabel('Número de Puntos Fijos', fontsize=14)
-    plt.title('Diagrama de Bifurcación: Número de Puntos Fijos vs $I_E$', fontsize=16)
-    plt.grid(True, alpha=0.3)
-    plt.show()
-
-    return I_E_values, num_fixed_points
-
 # Ejecutar análisis
 if __name__ == "__main__":
     # Crear diagrama principal
     fig = create_bifurcation_diagram()
-
-    # Análisis paramétrico
-    I_E_vals, n_fps = analyze_bifurcation_parameter_sweep()
