@@ -38,7 +38,7 @@ class MesoscopicNeuralNetwork:
         x = V - V_t
         return (nu_max/2) * (1 + (Lambda/2) * x / np.sqrt(1 + (Lambda**2/4) * x**2))
 
-    def nullcline_E(self, mu_E, mu_I):
+    def F(self, mu_E, mu_I):
         """Nullcline para población excitatoria"""
         A_E = self.activation_function(mu_E, self.nu_max_E, self.Lambda_E, self.V_t_E)
         A_I = self.activation_function(mu_I, self.nu_max_I, self.Lambda_I, self.V_t_I)
@@ -48,7 +48,7 @@ class MesoscopicNeuralNetwork:
                 self.N_I/(self.N - 1) * self.J_EI * A_I +
                 self.I_E)
 
-    def nullcline_I(self, mu_E, mu_I):
+    def G(self, mu_E, mu_I):
         """Nullcline para población inhibitoria"""
         A_E = self.activation_function(mu_E, self.nu_max_E, self.Lambda_E, self.V_t_E)
         A_I = self.activation_function(mu_I, self.nu_max_I, self.Lambda_I, self.V_t_I)
@@ -62,7 +62,7 @@ class MesoscopicNeuralNetwork:
         """Encuentra puntos fijos del sistema"""
         def system(vars):
             mu_E, mu_I = vars
-            return [self.nullcline_E(mu_E, mu_I), self.nullcline_I(mu_E, mu_I)]
+            return [self.F(mu_E, mu_I), self.G(mu_E, mu_I)]
 
         # Múltiples condiciones iniciales para encontrar diferentes puntos fijos
         initial_guesses = [
@@ -97,46 +97,47 @@ class MesoscopicNeuralNetwork:
         self.I_E = I_E_value
 
         # Rango para las gráficas
-        mu_range = np.linspace(-15, 60, 100000)
+        muE_range = np.linspace(-8, 10, 10000)
+        muI_range = np.linspace(-15, 60, 10000)
 
         # Calcular nullclines
-        nullcline_E_values = []
-        nullcline_I_values = []
+        F_values = []
+        G_values = []
 
-        for mu_E in mu_range:
+        for mu_E in muE_range:
             # Para nullcline E: encontrar mu_I tal que F_E(mu_E, mu_I) = 0
             def eq_E(mu_I):
-                return self.nullcline_E(mu_E, mu_I[0])
+                return self.F(mu_E, mu_I[0])
 
             try:
                 mu_I_sol = fsolve(eq_E, [0], xtol=1e-8, maxfev=1000,)[0]
                 # Verificar que la solución es válida
-                if abs(self.nullcline_E(mu_E, mu_I_sol)) < 1e-6:
-                    nullcline_E_values.append([mu_E, mu_I_sol])
+                if abs(self.F(mu_E, mu_I_sol)) < 1e-6:
+                    F_values.append([mu_E, mu_I_sol])
             except:
                 pass
 
-        for mu_I in mu_range:
+        for mu_I in muI_range:
             # Para nullcline I: encontrar mu_E tal que F_I(mu_E, mu_I) = 0
             def eq_I(mu_E):
-                return self.nullcline_I(mu_E[0], mu_I)
+                return self.G(mu_E[0], mu_I)
 
             try:
                 mu_E_sol = fsolve(eq_I, [0], xtol=1e-10)[0]
-                if abs(self.nullcline_I(mu_E_sol, mu_I)) < 1e-6:
-                    nullcline_I_values.append([mu_E_sol, mu_I])
+                if abs(self.G(mu_E_sol, mu_I)) < 1e-6:
+                    G_values.append([mu_E_sol, mu_I])
             except:
                 pass
 
         # Convertir a arrays
-        if nullcline_E_values:
-            nullcline_E = np.array(nullcline_E_values)
-            ax.plot(nullcline_E[:, 0], nullcline_E[:, 1], 'm-', linewidth=2,
+        if F_values:
+            F = np.array(F_values)
+            ax.plot(F[:, 0], F[:, 1], 'm-', linewidth=2,
                    label=r'$\mathcal{F}(\mu_E,\mu_I)=0$')
 
-        if nullcline_I_values:
-            nullcline_I = np.array(nullcline_I_values)
-            ax.plot(nullcline_I[:, 0], nullcline_I[:, 1], 'g-', linewidth=2,
+        if G_values:
+            G = np.array(G_values)
+            ax.plot(G[:, 0], G[:, 1], 'g-', linewidth=2,
                    label=r'$\mathcal{G}(\mu_E,\mu_I)=0$')
 
         # Encontrar y graficar puntos fijos
@@ -150,7 +151,6 @@ class MesoscopicNeuralNetwork:
         ax.set_xlabel(r'$\mu_E$', fontsize=14)
         ax.set_ylabel(r'$\mu_I$', fontsize=14)
         ax.set_title(f'$I_E = {I_E_value}$', fontsize=16)
-        ax.grid(True, alpha=0.3)
         ax.legend(fontsize=12)
         ax.set_xlim(-8, 10)
         ax.set_ylim(-15, 60)
@@ -163,7 +163,7 @@ def create_bifurcation_diagram():
     network_1 = MesoscopicNeuralNetwork(I_E=13)
 
     # Crear subplots
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, figsize=(32, 7))
 
     # Primer caso: I_E = 10
     print("Analizando I_E = 10...")
@@ -184,6 +184,31 @@ def create_bifurcation_diagram():
     plt.tight_layout()
     plt.suptitle('Análisis de Bifurcaciones en Redes Neuronales Mesoscópicas',
                  fontsize=18, y=1.02)
+    
+    IE_vector = np.linspace(-4, 18, 10000)
+    all_fixed_points = []
+
+    for i in IE_vector:
+        network.I_E = i
+        fixed_points = network.find_fixed_points()
+        for fp in fixed_points:
+            all_fixed_points.append([i,fp[0],fp[1]])
+
+    all_fixed_points = np.array(all_fixed_points)
+
+    
+    ax3.plot(all_fixed_points[:,0], all_fixed_points[:,1], 'b-', label=r'$\mu_E$')
+    ax3.set_ylabel(r'$\mu_E$', fontsize=14)
+    ax3.legend(fontsize=12)
+    ax3.set_xlim(-4, 18)
+    ax3.set_ylim(-4, 10)
+
+    ax4.plot(all_fixed_points[:,0], all_fixed_points[:,2], 'r-', label=r'$\mu_I$')
+    ax4.set_xlabel(r'$I_E$', fontsize=14)
+    ax4.set_ylabel(r'$\mu_I$', fontsize=14)
+    ax4.legend(fontsize=12)
+    ax4.set_xlim(-4, 18)
+    ax4.set_ylim(-15, 60)
     plt.show()
 
     return fig
