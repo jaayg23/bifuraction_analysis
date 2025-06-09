@@ -163,7 +163,10 @@ def create_bifurcation_diagram():
     network_1 = MesoscopicNeuralNetwork(I_E=13)
 
     # Crear subplots
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(1, 4, figsize=(32, 7))
+    fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+    ax1, ax2 = axes[0]
+    ax3, ax4 = axes[1]
+
 
     # Primer caso: I_E = 10
     print("Analizando I_E = 10...")
