@@ -200,13 +200,13 @@ def create_bifurcation_diagram():
     all_fixed_points = np.array(all_fixed_points)
 
     
-    ax3.plot(all_fixed_points[:,0], all_fixed_points[:,1], 'b-', label=r'$\mu_E$')
+    ax3.scatter(all_fixed_points[:,0], all_fixed_points[:,1], color='black',alpha=0.3, label=r'$\mu_E$')
     ax3.set_ylabel(r'$\mu_E$', fontsize=14)
     ax3.legend(fontsize=12)
     ax3.set_xlim(-4, 18)
     ax3.set_ylim(-4, 10)
 
-    ax4.plot(all_fixed_points[:,0], all_fixed_points[:,2], 'r-', label=r'$\mu_I$')
+    ax4.scatter(all_fixed_points[:,0], all_fixed_points[:,2], color='black',alpha=0.3, label=r'$\mu_I$')
     ax4.set_xlabel(r'$I_E$', fontsize=14)
     ax4.set_ylabel(r'$\mu_I$', fontsize=14)
     ax4.legend(fontsize=12)
