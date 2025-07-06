@@ -99,9 +99,9 @@ fully-connected y que los retrasos axonales son despreciables.
 
 El modelo de red neuronal se describe mediante las siguientes ecuaciones diferenciales:
 
-$$
-\frac{dV_{i}(t)}{dt} = -\frac{1}{\tau_i}V_i(t) + \frac{1}{M_i}\sum_{j=0}^{N-1} J_{ij}\phi(V_j(t)) + I_i, \quad i=0, ..., N-1 \quad (1)
-$$
+```math
+\frac{dV_{i}(t)}{dt} = -\frac{1}{\tau_{i}}V_{i}(t) + \frac{1}{M_{i}}\sum_{j=0}^{N-1} J_{ij}\phi(V_{j}(t)) + I_{i}, \quad i=0, ..., N-1 \quad (1)
+```
 Donde:
 * $N \geq 4$ representa el número de neuronas en la red
 * $V_i(t)$ es el potencial de membrana de la neurona $i$ en el tiempo $t$
@@ -119,9 +119,9 @@ consideraremos funciones de activación en forma de S (es decir, sigmoidales), y
 biológicamente realistas [6, 54]. Particularmente conveniente desde el punto de vista 
 matemático es la llamada función de activación algebraica, que se define como sigue:
 
-$$
+```math
 \phi_{j}(V) = \frac{v_{j}^{max}}{2} \left[ 1 + \frac{\frac{\Lambda_{j}}{2}(V - V_{j}^{T})}{\sqrt{1 + \frac{\Lambda_{j}^{2}}{4}(V - V_{j}^{T})^{2}}} \right]
-$$
+```
 
 Donde:
 * $v_{j}^{max}$ es el valor máximo de la función de activación para la neurona $j$
@@ -136,7 +136,7 @@ de la población excitatoria (inhibitoria) (con $N_E, N_I \geq 2$), e indexando 
 población excitatoria como $i = 0, ..., N_E - 1$ y las neuronas inhibitorias como $i = N_E, ..., N - 1$ 
 (con $N = N_E + N_I$), la matriz de conectividad sináptica se estructura como sigue:
 
-$$
+```math
 J = 
 \begin{bmatrix} 
 \mathcal{J}_{EE} & \mathcal{J}_{EI} \\ 
@@ -148,7 +148,7 @@ J =
 J_{\alpha\alpha}(\Pi_{N_{\alpha}} - \text{Id}_{N_{\alpha}}), & \text{for } \alpha = \beta \\ 
 J_{\alpha\beta}\Pi_{N_{\alpha}, N_{\beta}}, & \text{for } \alpha \ne \beta 
 \end{cases}
-$$
+```
 
 Donde:
 * $J_{EE}$ es la matriz de conectividad dentro de la población excitatoria
@@ -158,9 +158,9 @@ Donde:
 
 Claramente tenemos $J_{EE}, J_{IE} > 0$, y $J_{II}, J_{EI} < 0$, lo que también significa que $M_E = M_I = N - 1$
 
-$$
+```math
 \mathbf{I}_\alpha = I_\alpha \mathbf{1}_{N_\alpha}
-$$
+```
 
 Donde:
 * $I_\alpha$ es la corriente de entrada a la población $\alpha$
