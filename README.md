@@ -164,5 +164,9 @@ Claramente tenemos $J_{EE}, J_{IE} > 0$, y $J_{II}, J_{EI} < 0$, lo que también
 
 Donde:
 * $I_\alpha$ es la corriente de entrada a la población $\alpha$
-* $\mathbf{1}_{N_\alpha}$ es el vector $N_\alpha \times 1$ de todos unos
+* ```math$\mathbf{1}_{N_\alpha}$``` es el vector $N_\alpha \times 1$ de todos unos
 * $\alpha \in \{E, I\}$ (excitatoria o inhibitoria)
+
+<image src="branchs.png" alt="Modelo de circuitos neuronales">
+
+<image src="newplot.png" alt="Modelo de circuitos neuronales">
