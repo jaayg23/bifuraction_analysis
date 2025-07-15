@@ -4,7 +4,7 @@
 
 ## Programa de Ciencias de la Computacion
 
-# Análisis de Bifurcaciones
+# Análisis de Bifurcaciones en Circuitos Neuronales Mesoscopicos
 
 ## Presentado por: **Jacobo Ayala Giraldo**
 
@@ -12,34 +12,39 @@
 
 ---
 
-# 1. Introducción y Problema Central
+## 0. Resumen
 
-El cerebro se organiza a distintas escalas, siendo la **mesoscópica** (circuitos de decenas a miles de neuronas) fundamental para conectar la neurona individual con el comportamiento complejo.
+Este trabajo investiga la dinámica de redes neuronales de tamaño finito, un área donde las aproximaciones de campo medio tradicionales resultan insuficientes. Se emplea un modelo de tasa de disparo determinista, compuesto por una población excitatoria (E) y una inhibitoria (I), para estudiar cómo la interacción entre neuronas genera comportamientos complejos. Mediante el análisis de bifurcaciones, se demuestra que una fuerte auto-inhibición dentro de la población I provoca una ruptura espontánea de la simetría, dando lugar a nuevos estados de equilibrio asimétricos que no son predichos por la teoría de campo medio. Estos estados generan fenómenos funcionalmente relevantes, como la histéresis, que puede servir como base para la memoria de trabajo, y una notable flexibilidad computacional, permitiendo que el circuito actúe como integrador, interruptor o memoria. Los resultados subrayan la importancia de los efectos de tamaño finito en la comprensión de la computación neuronal.
 
-Las herramientas matemáticas estándar, como las aproximaciones de **campo medio** (mean-field), son efectivas para redes muy grandes pero fallan al describir circuitos pequeños. Estas aproximaciones pueden ocultar fenómenos importantes que solo ocurren en redes de tamaño finito, los llamados **efectos de tamaño finito** (finite-size effects).
-
-**Objetivo del trabajo:** Desarrollar y utilizar un método matemático para analizar la dinámica de redes neuronales pequeñas, demostrando que su comportamiento es mucho más rico y complejo de lo que predice la teoría de campo medio.
+**Palabras Clave:** Redes Neuronales, Análisis de Bifurcaciones, Ruptura de Simetría, Efectos de Tamaño Finito, Modelo de Tasa de Disparo, Histéresis.
 
 ---
 
-# 2. El Modelo Utilizado
+## 1. Introducción
 
-Se emplea un **modelo de tasa de disparo** (*firing-rate model*), que describe la actividad promedio de las neuronas.
+El cerebro humano opera a través de una compleja organización jerárquica. La escala **mesoscópica**, que abarca circuitos de decenas a miles de neuronas, es de vital importancia, ya que sirve de puente entre la actividad de neuronas individuales y los comportamientos cognitivos complejos [1]. Históricamente, el análisis de grandes redes neuronales se ha apoyado en aproximaciones de **campo medio** (*mean-field*), las cuales asumen un número infinito de neuronas para simplificar las interacciones [2, 3]. Si bien estas teorías son poderosas, fallan al describir la dinámica de circuitos neuronales pequeños, ocultando fenómenos emergentes que dependen críticamente del número de elementos en la red, conocidos como **efectos de tamaño finito** (*finite-size effects*) [4, 5].
 
-El circuito se compone de dos poblaciones neuronales: una **Excitatoria (E)** y una **Inhibitoria (I)**.
+El planteamiento del problema se centra en esta brecha: las herramientas matemáticas estándar son insuficientes para capturar la riqueza dinámica de los circuitos mesoscópicos. El **objetivo principal** de este trabajo es desarrollar y aplicar un método de análisis basado en la teoría de bifurcaciones para demostrar que la dinámica de redes neuronales pequeñas es significativamente más compleja de lo que predice la teoría de campo medio.
 
-**Supuestos Clave:**
-- **Homogeneidad:** Todas las neuronas dentro de una misma población son idénticas, lo que dota al modelo de una alta simetría.
-- **Conectividad Total:** Todas las neuronas están conectadas entre sí.
-- **Determinista:** El modelo no considera ruido o fluctuaciones aleatorias.
+El presente artículo se estructura de la siguiente manera: la Sección 2 detalla el modelo matemático y la metodología de análisis. La Sección 3 presenta los resultados centrales, enfocándose en el fenómeno de ruptura de simetría y sus consecuencias funcionales. Finalmente, la Sección 4 expone las conclusiones, limitaciones y posibles líneas de investigación futura.
 
-La siguiente figura muestra el esquema del modelo, con las interacciones entre y dentro de las poblaciones E e I:
+---
+
+## 2. Planteamiento del Problema y Metodología
+
+### 2.1. Modelo del Circuito Neuronal
+
+Para investigar el fenómeno, se utiliza un **modelo de tasa de disparo** (*firing-rate model*), un enfoque determinista que describe la actividad promedio de poblaciones neuronales [6]. El circuito base consta de dos poblaciones: una **Excitatoria (E)** y una **Inhibitoria (I)**, bajo los siguientes supuestos:
+
+- **Homogeneidad:** Todas las neuronas de una misma población son idénticas.
+- **Conectividad Total:** Cada neurona está conectada con todas las demás neuronas de la red.
+
 
 <image src="image.png" alt="Modelo de circuitos neuronales">
 
 ## Ecuaciones del modelo
 
-El modelo de red neuronal se describe mediante las siguientes ecuaciones diferenciales:
+La dinámica del potencial de membrana $V_i(t)$ de cada neurona $i$ se describe mediante el siguiente sistema de ecuaciones diferenciales:
 
 ```math
 \frac{dV_{i}(t)}{dt} = -\frac{1}{\tau_{i}}V_{i}(t) + \frac{1}{M_{i}}\sum_{j=0}^{N-1} J_{ij}\phi(V_{j}(t)) + I_{i}, \quad i=0, ..., N-1 \quad (1)
@@ -99,7 +104,7 @@ Donde:
 
 ---
 
-# 3. El Fenómeno Central: Ruptura Espontánea de Simetría
+## 3. El Fenómeno Central: Ruptura Espontánea de Simetría
 
 El comportamiento de la red depende críticamente de la fuerza de la auto-inhibición ($J_{II}$).
 
@@ -140,15 +145,15 @@ Como resultado, en el diagrama de bifurcación aparecen **ramas secundarias** de
 
 ---
 
-# 4. Resultados Funcionales y Relevancia Biológica
+## 4. Resultados Funcionales y Relevancia Biológica
 
-## Histéresis y Memoria de Trabajo
+### Histéresis y Memoria de Trabajo
 
 La estructura plegada de las soluciones conduce a la **histéresis**, donde el estado de la red depende de su historia reciente. Al aumentar un estímulo ($I_E$), la red salta a un estado de alta actividad, y al disminuirlo, se mantiene en ese estado antes de caer, demostrando un comportamiento con "memoria". Este mecanismo se ha propuesto como una base para la **memoria de trabajo**.
 
 <image src="figura_6_recreada.png" alt="Histéresis y memoria de trabajo">
 
-## Flexibilidad Computacional
+### Flexibilidad Computacional
 
 La red no tiene un único modo de operación; su comportamiento puede cambiar dinámicamente. La superficie de soluciones, o **colector de catástrofe**, muestra que la red puede actuar como:
 - Integrador con fugas (Leaky Integrator)
@@ -160,10 +165,42 @@ Esta flexibilidad computacional es clave, y se ha sugerido que este tipo de meca
 
 ---
 
-# 5. Conclusiones Finales
+## 5. Conclusiones Finales
 
 Los circuitos neuronales pequeños exhiben **dinámicas complejas y efectos de tamaño finito** que son ignorados por las aproximaciones de campo medio.
 
 La **ruptura espontánea de simetría**, impulsada por una inhibición fuerte, es un fenómeno central que genera heterogeneidad funcional a partir de una estructura homogénea.
 
 Incluso en regímenes más simples, la red muestra comportamientos computacionalmente ricos y biológicamente relevantes como la **histéresis (memoria)** y la **flexibilidad computacional (percepción del tiempo)**.
+
+## 6. Referencias
+
+[1] R. D. Beer, "On the dynamics of small continuous-time recurrent neural networks," *Adapt. Behav.*, vol. 3, no. 4, pp. 469–509, 1995.
+
+[2] S.-I. Amari, "Dynamics of pattern formation in lateral-inhibition type neural fields," *Biol. Cybern.*, vol. 27, pp. 77–87, 1977.
+
+[3] O. Faugeras, J. Touboul, and B. Cessac, "A constructive mean-field analysis of multi-population neural networks with random synaptic weights and stochastic inputs," *Front. Comput. Neurosci.*, vol. 3, p. 1, 2009.
+
+[4] M. A. Buice and C. C. Chow, "Dynamic finite size effects in spiking neural networks," *PLoS Comput. Biol.*, vol. 9, no. 1, p. e1002872, 2013.
+
+[5] P. C. Bressloff, "Stochastic neural field theory and the system-size expansion," *SIAM J. Appl. Math.*, vol. 70, no. 5, pp. 1488–1521, 2010.
+
+[6] H. R. Wilson and J. D. Cowan, "Excitatory and inhibitory interactions in localized populations of model neurons," *Biophys. J.*, vol. 12, no. 1, pp. 1–24, 1972.
+
+[7] Y. A. Kuznetsov, *Elements of applied bifurcation theory*, vol. 112. New York: Springer-Verlag, 1998.
+
+[8] S. H. Strogatz, *Nonlinear dynamics and chaos*. Sarat Book House, 1994.
+
+[9] G. Deco, et al., "How Local Excitation-inhibition ratio impacts the whole brain dynamics," *J. Neurosci.*, vol. 34, pp. 7886–7898, 2014.
+
+[10] R. D. Beer, "Parameter space structure of continuous-time recurrent neural networks," *Neural Comput.*, vol. 18, pp. 3009–3051, 2006.
+
+[11] D. Hansel and H. Sompolinsky, "Modeling feature selectivity in local cortical circuits," Chap. 13, MIT Press, 1998.
+
+[12] P. C. Bressloff, "Path-integral methods for analyzing the effects of fluctuations in stochastic hybrid neural networks," *J. Math. Neurosci.*, vol. 5, p. 4, 2015.
+
+[13] F. Grimbert, "Mesoscopic models of cortical structures," PhD thesis, Univ. of Nice-Sophia Antipolis, 2008.
+
+[14] O. Faugeras and J. MacLaurin, "Asymptotic description of neural networks with correlated synaptic weights," *Entropy*, vol. 17, pp. 4701–4743, 2015.
+
+[15] B. Cessac, "Increase in complexity in random neural networks," *J. Phys. I (France)*, vol. 5, pp. 409–432, 1995.
