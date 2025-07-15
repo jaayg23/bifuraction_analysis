@@ -42,6 +42,8 @@ Para investigar el fenómeno, se utiliza un **modelo de tasa de disparo** (*firi
 
 <image src="image.png" alt="Modelo de circuitos neuronales">
 
+Figura 1. Esquema del modelo de circuito neuronal con poblaciones excitatoria (E) e inhibitoria (I) y sus conexiones sinápticas.
+
 ## Ecuaciones del modelo
 
 La dinámica del potencial de membrana $V_i(t)$ de cada neurona $i$ se describe mediante el siguiente sistema de ecuaciones diferenciales:
@@ -120,11 +122,15 @@ El comportamiento de la red depende críticamente de la fuerza de la auto-inhibi
 
 <image src="fig_2.png" alt="Nulclinas y equilibrio">
 
+Figura 2. Intersección de nulclinas en el espacio de estados, mostrando los puntos de equilibrio simétricos de la red.
+
 - **Régimen de Inhibición Fuerte:** Se produce una **ruptura espontánea de simetría**: aunque todas las neuronas inhibitorias son idénticas, pueden adoptar diferentes niveles de actividad.
 
 La siguiente figura ofrece una analogía intuitiva: con inhibición fuerte, el "paisaje de energía" del sistema desarrolla múltiples valles, y el sistema "cae" en uno de ellos, rompiendo la simetría original.
 
 <image src="branchs.png" alt="Ramas de soluciones y ruptura de simetría">
+
+Figura 3. Diagrama de bifurcación que ilustra la aparición de ramas secundarias y ruptura espontánea de simetría en la red neuronal.
 
 Este fenómeno se visualiza matemáticamente en la siguiente figura. En lugar de simples nulclinas, el sistema se describe por **nulsuperficies** en 3D, cuyas intersecciones revelan nuevos puntos de equilibrio.
 
@@ -141,6 +147,8 @@ Este fenómeno se visualiza matemáticamente en la siguiente figura. En lugar de
 
 <image src="Figura4.png" alt="Nulsuperficies y puntos de equilibrio">
 
+Figura 4. Intersección de nulsuperficies en el espacio de estados tridimensional, revelando los nuevos puntos de equilibrio asimétricos (puntos magenta) que coexisten con el equilibrio simétrico original.
+
 Como resultado, en el diagrama de bifurcación aparecen **ramas secundarias** de soluciones que emanan de **puntos de ramificación** (BP), representando los nuevos estados asimétricos.
 
 ---
@@ -152,6 +160,8 @@ Como resultado, en el diagrama de bifurcación aparecen **ramas secundarias** de
 La estructura plegada de las soluciones conduce a la **histéresis**, donde el estado de la red depende de su historia reciente. Al aumentar un estímulo ($I_E$), la red salta a un estado de alta actividad, y al disminuirlo, se mantiene en ese estado antes de caer, demostrando un comportamiento con "memoria". Este mecanismo se ha propuesto como una base para la **memoria de trabajo**.
 
 <image src="figura_6_recreada.png" alt="Histéresis y memoria de trabajo">
+
+Figura 5. Curva de histéresis que muestra el comportamiento de memoria de trabajo: la red mantiene su estado de alta actividad incluso cuando el estímulo disminuye, hasta un umbral crítico.
 
 ### Flexibilidad Computacional
 
